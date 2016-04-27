@@ -1,18 +1,3 @@
 <resources>
-    <string name="app_name">SudaModWeatherProvider</string>
-
-    <string name="prefscreen_category_authentication_title">Settings</string>
-    <string name="prefscreen_category_about_title">About</string>
-
-    <!-- Authentication strings -->
-    <string name="prefscreen_api_key_title">API key</string>
-    <string name="prefscreen_api_key_summary">Your private API key to access %1$s weather data</string>
-    <string name="prefscreen_create_key_title">Create account</string>
-    <string name="prefscreen_create_key_summary">Create an account and generate your API key</string>
-    <string name="api_key_not_set_message">You must set a private API key to use %1$s</string>
-
-    <!-- Copyright and disclaimers -->
-    <string name="prefscreen_copyright_title">Disclaimer</string>
-    <string name="prefscreen_copyright_summary">The information provided by this application is provided for general information purposes only and does not claim to be or constitute legal or other professional advice and shall not be relied upon %1$s nor the provider of this application as such.</string>
-    <string name="openweathermap_inc_name" translatable="false">OpenWeatherMap, Inc.</string>
+    <string name="app_name">SMWeatherProvider</string>
 </resources>

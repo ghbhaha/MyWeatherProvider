@@ -1,6 +1,5 @@
 package suda.myweatherprovider;
 
-import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.text.TextUtils;
@@ -155,11 +154,11 @@ public class MyWeatherProviderService extends WeatherProviderService {
             }
             ArrayList<WeatherLocation> results = new ArrayList<>();
             try {
-                com.alibaba.fastjson.JSONObject jsonObject = JSON.parseObject(response);
-                com.alibaba.fastjson.JSONArray cityInfos = jsonObject.getJSONArray("cityInfos");
+                JSONObject jsonObject = JSON.parseObject(response);
+                JSONArray cityInfos = jsonObject.getJSONArray("cityInfos");
                 for (int i = 0; i < cityInfos.size(); i++) {
-                    com.alibaba.fastjson.JSONObject cityInfo = cityInfos.getJSONObject(i);
-                    com.alibaba.fastjson.JSONObject metaData = cityInfo.getJSONObject("metaData");
+                    JSONObject cityInfo = cityInfos.getJSONObject(i);
+                    JSONObject metaData = cityInfo.getJSONObject("metaData");
                     City city = cityDao.getCityByAreaName(input);
                     if (city == null)
                         return results;
