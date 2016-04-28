@@ -31,8 +31,6 @@
                 android:resource="@xml/myweather" />
         </service>
 
-        <activity android:name=".DebugActivity">
-        </activity>
     </application>
 
 </manifest>
