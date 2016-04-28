@@ -4,6 +4,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import suda.myweatherprovider.model.City;
 
 /**
@@ -19,23 +22,21 @@ public class CityDao {
         dbOpenHelper = new DBOpenHelper(context);
     }
 
-    public City getCityByAreaName(String areaName) {
+    public List<City> getCitysByAreaName(String areaName) {
         SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
         Cursor cursor = db.query("weathers", null, "area_name=?",
                 new String[]{areaName}, null, null, null);
-
-        if (cursor.moveToFirst()) {
+        List<City> cities = new ArrayList<>();
+        while (cursor.moveToNext()) {
             City city = new City();
             city.setAreaName(areaName);
             city.setProvinceName(cursor.getString(cursor.getColumnIndex("province_name")));
             city.setCityName(cursor.getString(cursor.getColumnIndex("city_name")));
             city.setWeatherId(cursor.getString(cursor.getColumnIndex("weather_id")));
-            cursor.close();
-            return city;
-        } else {
-            cursor.close();
-            return null;
+            cities.add(city);
         }
+        cursor.close();
+        return cities;
     }
 
 }

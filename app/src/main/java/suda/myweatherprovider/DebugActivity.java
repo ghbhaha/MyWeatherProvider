@@ -15,13 +15,10 @@ import org.json.JSONException;
 import java.util.ArrayList;
 
 import cyanogenmod.providers.WeatherContract;
-import cyanogenmod.weather.RequestInfo;
 import cyanogenmod.weather.WeatherInfo;
 import cyanogenmod.weather.WeatherLocation;
-import cyanogenmod.weatherservice.ServiceRequest;
 import cyanogenmod.weatherservice.ServiceRequestResult;
-import suda.myweatherprovider.db.CityDao;
-import suda.myweatherprovider.model.City;
+import suda.myweatherprovider.util.HttpRetriever;
 
 public class DebugActivity extends AppCompatActivity {
 
@@ -46,11 +43,7 @@ public class DebugActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_debug);
-//        LookupCityNameRequestTask lookupTask = new LookupCityNameRequestTask("南通");
-//        lookupTask.execute();
 
-        WeatherUpdateRequestTask weatherTask = new WeatherUpdateRequestTask("101010100");
-        weatherTask.execute();
     }
 
 
@@ -75,7 +68,7 @@ public class DebugActivity extends AppCompatActivity {
 //                    mRequest.getRequestInfo().getWeatherLocation().getCityId());
 
             String forecastUrl = String.format(URL_FORECAST,
-                    mRequest );
+                    mRequest);
 
             if (DEBUG) Log.d(TAG, "Forecast URL " + forecastUrl);
             String forecastResponse = HttpRetriever.retrieve(forecastUrl);
@@ -109,7 +102,7 @@ public class DebugActivity extends AppCompatActivity {
                         WeatherContract.WeatherColumns.TempUnit.CELSIUS);
                 weatherInfo.setHumidity(accu_cc.getDouble("RelativeHumidity"));
                 weatherInfo.setWind(accu_cc.getDouble("WindSpeed"), accu_cc.getDouble("WindDirectionDegrees"),
-                       WeatherContract.WeatherColumns.WindSpeedUnit.KPH);
+                        WeatherContract.WeatherColumns.WindSpeedUnit.KPH);
                 String tempMin = main.getString("tempMin");
                 String tempMax = main.getString("tempMax");
 
@@ -186,7 +179,7 @@ public class DebugActivity extends AppCompatActivity {
         protected void onPostExecute(WeatherInfo weatherInfo) {
             if (weatherInfo == null) {
                 if (DEBUG) Log.d(TAG, "Received null weather info, failing request");
-               // mRequest.fail();
+                // mRequest.fail();
             } else {
                 if (DEBUG) Log.d(TAG, weatherInfo.toString());
                 ServiceRequestResult result = new ServiceRequestResult.Builder(weatherInfo).build();
@@ -263,13 +256,13 @@ public class DebugActivity extends AppCompatActivity {
 //                    results.add(weatherLocation);
 //                }
             ArrayList<WeatherLocation> results = new ArrayList<>();
-            City city = new CityDao(DebugActivity.this).getCityByAreaName(input);
-            String areaCode = city.getWeatherId();
-            String country = "CN";
-            WeatherLocation weatherLocation = new WeatherLocation.Builder(areaCode, input)
-                    .setCountry(country).build();
-
-            results.add(weatherLocation);
+//            City city = new CityDao(DebugActivity.this).getCitysByAreaName(input);
+//            String areaCode = city.getWeatherId();
+//            String country = "CN";
+//            WeatherLocation weatherLocation = new WeatherLocation.Builder(areaCode, input)
+//                    .setCountry(country).build();
+//
+//            results.add(weatherLocation);
             return results;
 
         }
