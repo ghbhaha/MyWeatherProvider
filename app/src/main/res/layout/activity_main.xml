@@ -45,5 +45,11 @@
             android:text="中华万年历" />
     </RadioGroup>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Ps:\n天气只能通过手动输入地区查询" />
+
 
 </LinearLayout>

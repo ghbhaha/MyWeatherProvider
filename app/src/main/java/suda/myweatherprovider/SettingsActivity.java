@@ -48,5 +48,9 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     public static final String FORECAST_PROVIDE = "FORECAST_PROVIDE";
+    public static final int MIUI_FORECAST = 0;
+    public static final int FLYME_FORECAST = 1;
+    public static final int WNL_FORECAST = 2;
+
     private RadioGroup mRgForecast;
 }
