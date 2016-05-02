@@ -2,10 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="suda.myweatherprovider">
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
     <uses-permission android:name="cyanogenmod.permission.ACCESS_WEATHER_MANAGER" />
+    <uses-feature android:name="org.cyanogenmod.weather" android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -14,7 +13,8 @@
         android:supportsRtl="true"
         android:name=".MyAppliCation"
         android:theme="@style/AppTheme">
-        <activity android:name=".SettingsActivity">
+        <activity android:name=".SettingsActivity"
+            android:exported="true">
         </activity>
 
         <service

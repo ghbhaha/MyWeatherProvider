@@ -91,7 +91,7 @@ public class MyWeatherProviderService extends WeatherProviderService {
                     Calendar calendar = Calendar.getInstance();
                     boolean beforeDawn = (calendar.get(Calendar.HOUR_OF_DAY) == 0) && (calendar.get(Calendar.MINUTE) < 30);
                     if (lastWeatherInfo != null && beforeDawn) {
-                        serviceRequest.reject(CMWeatherManager.RequestStatus.COMPLETED);
+                        serviceRequest.fail();
                         return;
                     }
 
@@ -183,7 +183,10 @@ public class MyWeatherProviderService extends WeatherProviderService {
             } catch (Exception e) {
 
             }
-            return results;
+            if (results.size() == 0)
+                return null;
+            else
+                return results;
         }
     }
 
@@ -197,32 +200,31 @@ public class MyWeatherProviderService extends WeatherProviderService {
         @Override
         protected WeatherInfo doInBackground(Void... params) {
             //TODO Read units from settings
-            String cityId = null;
-            if (mRequest.getRequestInfo().getRequestType()
-                    == RequestInfo.TYPE_WEATHER_BY_WEATHER_LOCATION_REQ) {
-                cityId = mRequest.getRequestInfo().getWeatherLocation().getCityId();
-            } else if (mRequest.getRequestInfo().getRequestType()
-                    == RequestInfo.TYPE_WEATHER_BY_GEO_LOCATION_REQ) {
-                return null;
-            } else {
-                return null;
-            }
-
-            //miui天气
-            String miuiURL = String.format(URL_WEATHER, cityId);
-            if (DEBUG) Log.d(TAG, "miuiURL" + miuiURL);
-            String miuiResponse = HttpRetriever.retrieve(miuiURL);
-            if (miuiResponse == null) return null;
-            if (DEBUG) Log.d(TAG, "Rmiuiesponse " + miuiResponse);
-
-            //flyme天气
-            String flymeUrl = String.format(URL_FORECAST_FLYME, cityId);
-            if (DEBUG) Log.d(TAG, "flymeUrl " + flymeUrl);
-            String flymeResponse = HttpRetriever.retrieve(flymeUrl);
-            if (flymeUrl == null) return null;
-            if (DEBUG) Log.d(TAG, "flymeResponse " + flymeResponse);
-
             try {
+                String cityId = null;
+                if (mRequest.getRequestInfo().getRequestType()
+                        == RequestInfo.TYPE_WEATHER_BY_WEATHER_LOCATION_REQ) {
+                    cityId = mRequest.getRequestInfo().getWeatherLocation().getCityId();
+                } else if (mRequest.getRequestInfo().getRequestType()
+                        == RequestInfo.TYPE_WEATHER_BY_GEO_LOCATION_REQ) {
+                    return null;
+                } else {
+                    return null;
+                }
+
+                //miui天气
+                String miuiURL = String.format(URL_WEATHER, cityId);
+                if (DEBUG) Log.d(TAG, "miuiURL" + miuiURL);
+                String miuiResponse = HttpRetriever.retrieve(miuiURL);
+                if (miuiResponse == null) return null;
+                if (DEBUG) Log.d(TAG, "Rmiuiesponse " + miuiResponse);
+
+                //flyme天气
+                String flymeUrl = String.format(URL_FORECAST_FLYME, cityId);
+                if (DEBUG) Log.d(TAG, "flymeUrl " + flymeUrl);
+                String flymeResponse = HttpRetriever.retrieve(flymeUrl);
+                if (flymeUrl == null) return null;
+                if (DEBUG) Log.d(TAG, "flymeResponse " + flymeResponse);
                 JSONObject weather = JSON.parseObject(miuiResponse);
                 JSONObject currentCondition = weather.getJSONObject("realtime");
                 JSONObject aqi = weather.getJSONObject("aqi");
