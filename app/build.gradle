@@ -8,8 +8,8 @@ android {
         applicationId "suda.myweatherprovider"
         minSdkVersion 23
         targetSdkVersion 23
-        versionCode 8
-        versionName "1.71"
+        versionCode 9
+        versionName "1.72"
     }
     buildTypes {
         release {

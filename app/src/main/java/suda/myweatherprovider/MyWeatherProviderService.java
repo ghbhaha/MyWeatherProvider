@@ -27,6 +27,7 @@ import cyanogenmod.weatherservice.WeatherProviderService;
 import suda.myweatherprovider.db.CityDao;
 import suda.myweatherprovider.model.City;
 import suda.myweatherprovider.util.HttpRetriever;
+import suda.myweatherprovider.util.IconUtil;
 import suda.myweatherprovider.util.SPUtils;
 
 /**
@@ -275,7 +276,7 @@ public class MyWeatherProviderService extends WeatherProviderService {
                             WeatherContract.WeatherColumns.TempUnit.CELSIUS);
                     //湿度
                     weatherInfo.setHumidity(realTime.getDouble("sD"));
-                    weatherInfo.setWeatherCondition(getWeatherCodeByType(realTime.getString("weather")));
+                    weatherInfo.setWeatherCondition(IconUtil.getWeatherCodeByType(realTime.getString("weather")));
                 } else if (miuiResponse != null) {
                     weatherInfo = new WeatherInfo.Builder(
                             cityName, sanitizeTemperature(currentCondition.getDouble("temp"), true),
@@ -283,7 +284,7 @@ public class MyWeatherProviderService extends WeatherProviderService {
                     //湿度
                     String humidity = currentCondition.getString("SD").replace("%", "");
                     weatherInfo.setHumidity(Double.parseDouble(humidity));
-                    weatherInfo.setWeatherCondition(getWeatherCodeByType(currentCondition.getString("weather")));
+                    weatherInfo.setWeatherCondition(IconUtil.getWeatherCodeByType(currentCondition.getString("weather")));
                 } else
                     return null;
 
@@ -344,7 +345,7 @@ public class MyWeatherProviderService extends WeatherProviderService {
         private WeatherInfo.DayForecast createDayForecast(String temp, String weather, boolean metric) {
             String tempMin = temp.split("~")[1].replace("℃", "");
             String tempMax = temp.split("~")[0].replace("℃", "");
-            return new WeatherInfo.DayForecast.Builder(getWeatherCodeByType(weather))
+            return new WeatherInfo.DayForecast.Builder(IconUtil.getWeatherCodeByType(weather))
                     .setLow(sanitizeTemperature(Double.parseDouble(tempMin), metric))
                     .setHigh(sanitizeTemperature(Double.parseDouble(tempMax), metric)).build();
         }
@@ -368,7 +369,7 @@ public class MyWeatherProviderService extends WeatherProviderService {
                 JSONObject forecast = forecasts.getJSONObject(i);
                 String tmpMin = forecast.getString("temp_night_c");
                 String tmpMax = forecast.getString("temp_day_c");
-                WeatherInfo.DayForecast item = new WeatherInfo.DayForecast.Builder(getWeatherCodeByType(forecast.getString("weather")))
+                WeatherInfo.DayForecast item = new WeatherInfo.DayForecast.Builder(IconUtil.getWeatherCodeByType(forecast.getString("weather")))
                         .setLow(sanitizeTemperature(Double.parseDouble(tmpMin), metric))
                         .setHigh(sanitizeTemperature(Double.parseDouble(tmpMax), metric)).build();
                 result.add(item);
@@ -395,7 +396,7 @@ public class MyWeatherProviderService extends WeatherProviderService {
                 JSONObject forecast = forecasts.getJSONObject(i);
                 String tmpMin = forecast.getString("low").split(" ")[1].replace("℃", "");
                 String tmpMax = forecast.getString("high").split(" ")[1].replace("℃", "");
-                WeatherInfo.DayForecast item = new WeatherInfo.DayForecast.Builder(getWeatherCodeByType(forecast.getString("type")))
+                WeatherInfo.DayForecast item = new WeatherInfo.DayForecast.Builder(IconUtil.getWeatherCodeByType(forecast.getString("type")))
                         .setLow(sanitizeTemperature(Double.parseDouble(tmpMin), metric))
                         .setHigh(sanitizeTemperature(Double.parseDouble(tmpMax), metric)).build();
                 result.add(item);
@@ -421,120 +422,6 @@ public class MyWeatherProviderService extends WeatherProviderService {
             return value;
         }
 
-        /**
-         * 获取天气状态码
-         *
-         * @param type
-         * @return
-         */
-        private int getWeatherCodeByType(String type) {
-            //晚间图标
-            Calendar date = Calendar.getInstance();
-            int hour = date.get(Calendar.HOUR_OF_DAY);
-            if (hour <= 6 || hour >= 19) {
-                for (String w : WEATHER_HAVE_NIGHT) {
-                    if (w.equals(type)) {
-                        type = type + "晚";
-                        break;
-                    }
-                }
-            }
-            Log.d(TAG, "type" + type);
-
-            if (ICON_MAPPING.get(type) != null)
-                return ICON_MAPPING.get(type);
-            return WeatherContract.WeatherColumns.WeatherCode.NOT_AVAILABLE;
-        }
-
     }
 
-    private static final String[] WEATHER_HAVE_NIGHT = {"晴", "多云"};
-
-    private static final HashMap<String, Integer> ICON_MAPPING = new HashMap<>();
-
-    static {
-        //默认44个
-        //       ICON_MAPPING.put("龙卷风", WeatherContract.WeatherColumns.WeatherCode.TORNADO);
-//        ICON_MAPPING.put("热带风暴", WeatherContract.WeatherColumns.WeatherCode.TROPICAL_STORM);
-//        ICON_MAPPING.put("飓风", WeatherContract.WeatherColumns.WeatherCode.HURRICANE);
-//        ICON_MAPPING.put("强雷暴", WeatherContract.WeatherColumns.WeatherCode.SEVERE_THUNDERSTORMS);
-//        ICON_MAPPING.put("雷暴", WeatherContract.WeatherColumns.WeatherCode.THUNDERSTORMS);
-//        ICON_MAPPING.put("雨夹雪", WeatherContract.WeatherColumns.WeatherCode.MIXED_RAIN_AND_SNOW);
-//        ICON_MAPPING.put("混合雨和冻雨", WeatherContract.WeatherColumns.WeatherCode.MIXED_RAIN_AND_SLEET);
-//        ICON_MAPPING.put("混合雪和冻雨", WeatherContract.WeatherColumns.WeatherCode.MIXED_SNOW_AND_SLEET);
-//        ICON_MAPPING.put("冻毛毛雨", WeatherContract.WeatherColumns.WeatherCode.FREEZING_DRIZZLE);
-//        ICON_MAPPING.put("冻雨", WeatherContract.WeatherColumns.WeatherCode.FREEZING_RAIN);
-//        ICON_MAPPING.put("毛毛雨", WeatherContract.WeatherColumns.WeatherCode.DRIZZLE);
-//        ICON_MAPPING.put("阵雨", WeatherContract.WeatherColumns.WeatherCode.SHOWERS);
-//        ICON_MAPPING.put("飘雪", WeatherContract.WeatherColumns.WeatherCode.SNOW_FLURRIES);
-//        ICON_MAPPING.put("小雪", WeatherContract.WeatherColumns.WeatherCode.LIGHT_SNOW_SHOWERS);
-//        ICON_MAPPING.put("吹雪", WeatherContract.WeatherColumns.WeatherCode.BLOWING_SNOW);
-//        ICON_MAPPING.put("雪景", WeatherContract.WeatherColumns.WeatherCode.SNOW);
-//        ICON_MAPPING.put("冰雹", WeatherContract.WeatherColumns.WeatherCode.HAIL);
-//        ICON_MAPPING.put("冻雨", WeatherContract.WeatherColumns.WeatherCode.SLEET);
-//        ICON_MAPPING.put("沙尘", WeatherContract.WeatherColumns.WeatherCode.DUST);
-//        ICON_MAPPING.put("多雾", WeatherContract.WeatherColumns.WeatherCode.FOGGY);
-//        ICON_MAPPING.put("阴霾", WeatherContract.WeatherColumns.WeatherCode.HAZE);
-//        ICON_MAPPING.put("烟雾", WeatherContract.WeatherColumns.WeatherCode.SMOKY);
-//        ICON_MAPPING.put("强风", WeatherContract.WeatherColumns.WeatherCode.BLUSTERY);
-//        ICON_MAPPING.put("大风", WeatherContract.WeatherColumns.WeatherCode.WINDY);
-//        ICON_MAPPING.put("冷", WeatherContract.WeatherColumns.WeatherCode.COLD);
-//        ICON_MAPPING.put("阴天", WeatherContract.WeatherColumns.WeatherCode.CLOUDY);
-//        ICON_MAPPING.put("大部多云", WeatherContract.WeatherColumns.WeatherCode.MOSTLY_CLOUDY_NIGHT);
-//        ICON_MAPPING.put("大部多云", WeatherContract.WeatherColumns.WeatherCode.MOSTLY_CLOUDY_DAY);
-//        ICON_MAPPING.put("晴间多云", WeatherContract.WeatherColumns.WeatherCode.PARTLY_CLOUDY_NIGHT);
-//        ICON_MAPPING.put("晴间多云", WeatherContract.WeatherColumns.WeatherCode.PARTLY_CLOUDY_DAY);
-//        ICON_MAPPING.put("晴天", WeatherContract.WeatherColumns.WeatherCode.CLEAR_NIGHT);
-//        ICON_MAPPING.put("晴天", WeatherContract.WeatherColumns.WeatherCode.SUNNY);
-//        ICON_MAPPING.put("晴天", WeatherContract.WeatherColumns.WeatherCode.FAIR_NIGHT);
-//        ICON_MAPPING.put("晴天", WeatherContract.WeatherColumns.WeatherCode.FAIR_DAY);
-//        ICON_MAPPING.put("雨夹冰雹", WeatherContract.WeatherColumns.WeatherCode.MIXED_RAIN_AND_HAIL);
-//        ICON_MAPPING.put("热", WeatherContract.WeatherColumns.WeatherCode.HOT);
-//        ICON_MAPPING.put("局部雷暴雨", WeatherContract.WeatherColumns.WeatherCode.ISOLATED_THUNDERSTORMS);
-//        ICON_MAPPING.put("局部雷雨", WeatherContract.WeatherColumns.WeatherCode.SCATTERED_THUNDERSTORMS);
-//        ICON_MAPPING.put("零星阵雨", WeatherContract.WeatherColumns.WeatherCode.SCATTERED_SHOWERS);
-//        ICON_MAPPING.put("大雪", WeatherContract.WeatherColumns.WeatherCode.HEAVY_SNOW);
-//        ICON_MAPPING.put("零星阵雪", WeatherContract.WeatherColumns.WeatherCode.SCATTERED_SNOW_SHOWERS);
-//        ICON_MAPPING.put("晴间多云", WeatherContract.WeatherColumns.WeatherCode.PARTLY_CLOUDY);
-//        ICON_MAPPING.put("雷阵雨", WeatherContract.WeatherColumns.WeatherCode.THUNDERSHOWER);
-//        ICON_MAPPING.put("阵雪", WeatherContract.WeatherColumns.WeatherCode.SNOW_SHOWERS);
-//        ICON_MAPPING.put("局部雷阵雨", WeatherContract.WeatherColumns.WeatherCode.ISOLATED_THUNDERSHOWERS);
-        //自定义
-        ICON_MAPPING.put("晴", WeatherContract.WeatherColumns.WeatherCode.SUNNY);
-        ICON_MAPPING.put("晴晚", WeatherContract.WeatherColumns.WeatherCode.CLEAR_NIGHT);
-        ICON_MAPPING.put("多云", WeatherContract.WeatherColumns.WeatherCode.MOSTLY_CLOUDY_DAY);
-        ICON_MAPPING.put("多云晚", WeatherContract.WeatherColumns.WeatherCode.MOSTLY_CLOUDY_NIGHT);
-
-        ICON_MAPPING.put("小雨", WeatherContract.WeatherColumns.WeatherCode.DRIZZLE);
-        ICON_MAPPING.put("中雨", WeatherContract.WeatherColumns.WeatherCode.SHOWERS);
-        ICON_MAPPING.put("大雨", WeatherContract.WeatherColumns.WeatherCode.SHOWERS);
-        ICON_MAPPING.put("阵雨", WeatherContract.WeatherColumns.WeatherCode.SHOWERS);
-        ICON_MAPPING.put("暴雨", WeatherContract.WeatherColumns.WeatherCode.SHOWERS);
-        ICON_MAPPING.put("雷阵雨", WeatherContract.WeatherColumns.WeatherCode.THUNDERSHOWER);
-
-        ICON_MAPPING.put("阴", WeatherContract.WeatherColumns.WeatherCode.CLOUDY);
-        ICON_MAPPING.put("雾", WeatherContract.WeatherColumns.WeatherCode.FOGGY);
-
-        ICON_MAPPING.put("雨夹雪", WeatherContract.WeatherColumns.WeatherCode.MIXED_RAIN_AND_SLEET);
-        ICON_MAPPING.put("小雪", WeatherContract.WeatherColumns.WeatherCode.LIGHT_SNOW_SHOWERS);
-        ICON_MAPPING.put("阵雪", WeatherContract.WeatherColumns.WeatherCode.SNOW_SHOWERS);
-        ICON_MAPPING.put("中雪", WeatherContract.WeatherColumns.WeatherCode.BLOWING_SNOW);
-        ICON_MAPPING.put("大雪", WeatherContract.WeatherColumns.WeatherCode.HEAVY_SNOW);
-        ICON_MAPPING.put("暴雪", WeatherContract.WeatherColumns.WeatherCode.HEAVY_SNOW);
-
-        ICON_MAPPING.put("霾", WeatherContract.WeatherColumns.WeatherCode.HAZE);
-        ICON_MAPPING.put("浮尘", WeatherContract.WeatherColumns.WeatherCode.DUST);
-        ICON_MAPPING.put("扬沙", WeatherContract.WeatherColumns.WeatherCode.DUST);
-
-        ICON_MAPPING.put("小到中雨", WeatherContract.WeatherColumns.WeatherCode.SHOWERS);
-        ICON_MAPPING.put("中到大雨", WeatherContract.WeatherColumns.WeatherCode.SHOWERS);
-        ICON_MAPPING.put("大到暴雨", WeatherContract.WeatherColumns.WeatherCode.SHOWERS);
-        ICON_MAPPING.put("暴雨到大暴雨", WeatherContract.WeatherColumns.WeatherCode.SHOWERS);
-        ICON_MAPPING.put("大暴雨到特大暴雨", WeatherContract.WeatherColumns.WeatherCode.SHOWERS);
-        ICON_MAPPING.put("小到中雪", WeatherContract.WeatherColumns.WeatherCode.BLOWING_SNOW);
-        ICON_MAPPING.put("中到大雪", WeatherContract.WeatherColumns.WeatherCode.HEAVY_SNOW);
-        ICON_MAPPING.put("大到暴雪", WeatherContract.WeatherColumns.WeatherCode.HEAVY_SNOW);
-
-        //"小到中雨","22":"中到大雨","23":"大到暴雨","24":"暴雨到大暴雨","25":"大暴雨到特大暴雨","26":"小到中雪","27":"中到大雪","28":"大到暴雪"
-    }
 }

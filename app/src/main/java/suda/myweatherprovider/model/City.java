@@ -8,6 +8,7 @@ public class City {
     private String cityName;
     private String areaName;
     private String weatherId;
+    private String areaId;
 
     public String getProvinceName() {
         return provinceName;
@@ -39,5 +40,13 @@ public class City {
 
     public void setWeatherId(String weatherId) {
         this.weatherId = weatherId;
+    }
+
+    public String getAreaId() {
+        return areaId;
+    }
+
+    public void setAreaId(String areaId) {
+        this.areaId = areaId;
     }
 }

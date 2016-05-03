@@ -16,7 +16,9 @@
         <activity android:name=".SettingsActivity"
             android:exported="true">
         </activity>
-
+        <activity android:name=".Settings2345Activity"
+            android:exported="true">
+        </activity>
         <service
             android:name=".MyWeatherProviderService"
             android:exported="true"
@@ -29,6 +31,20 @@
             <meta-data
                 android:name="cyanogenmod.weatherservice"
                 android:resource="@xml/myweather" />
+        </service>
+
+        <service
+            android:name=".Weather2345ProviderService"
+            android:exported="true"
+            android:label="@string/app_name2"
+            android:permission="cyanogenmod.permission.BIND_WEATHER_PROVIDER_SERVICE">
+            <intent-filter>
+                <action android:name="cyanogenmod.weatherservice.WeatherProviderService" />
+            </intent-filter>
+
+            <meta-data
+                android:name="cyanogenmod.weatherservice"
+                android:resource="@xml/another_weather" />
         </service>
 
     </application>

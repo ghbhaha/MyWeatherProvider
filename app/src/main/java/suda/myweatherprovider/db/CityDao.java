@@ -24,15 +24,18 @@ public class CityDao {
 
     public List<City> getCitysByAreaName(String areaName) {
         SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
-        Cursor cursor = db.query("weathers", null, "area_name=?",
-                new String[]{areaName}, null, null, null);
+        Cursor cursor = db.rawQuery("select a.[areaId],b.[weather_id],a.[provinceName],a.[cityName]  From citys a,weathers b where \n" +
+                " a.[provinceName] = b.[province_name]\n" +
+                " and\n" +
+                " a.[areaName] = b.[area_name] and b.[area_name] =  '" + areaName + "'", null);
         List<City> cities = new ArrayList<>();
         while (cursor.moveToNext()) {
             City city = new City();
             city.setAreaName(areaName);
-            city.setProvinceName(cursor.getString(cursor.getColumnIndex("province_name")));
-            city.setCityName(cursor.getString(cursor.getColumnIndex("city_name")));
+            city.setProvinceName(cursor.getString(cursor.getColumnIndex("provinceName")));
+            city.setCityName(cursor.getString(cursor.getColumnIndex("cityName")));
             city.setWeatherId(cursor.getString(cursor.getColumnIndex("weather_id")));
+            city.setAreaId(cursor.getString(cursor.getColumnIndex("areaId")));
             cities.add(city);
         }
         cursor.close();
