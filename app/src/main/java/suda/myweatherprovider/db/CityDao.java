@@ -24,10 +24,8 @@ public class CityDao {
 
     public List<City> getCitysByAreaName(String areaName) {
         SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
-        Cursor cursor = db.rawQuery("select a.[areaId],b.[weather_id],a.[provinceName],a.[cityName]  From citys a,weathers b where \n" +
-                " a.[provinceName] = b.[province_name]\n" +
-                " and\n" +
-                " a.[areaName] = b.[area_name] and b.[area_name] =  '" + areaName + "'", null);
+        Cursor cursor = db.rawQuery("select a.[areaId],b.[weather_id],a.[provinceName],a.[cityName]  From citys a,weathers b where " +
+                " a.[provinceName] = b.[province_name]  and a.[areaName] = b.[area_name] and b.[area_name] =  '" + areaName + "'", null);
         List<City> cities = new ArrayList<>();
         while (cursor.moveToNext()) {
             City city = new City();
@@ -40,6 +38,46 @@ public class CityDao {
         }
         cursor.close();
         return cities;
+    }
+
+    public City getCityByCityAndArea(String cityName, String areaName) {
+        SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
+        Cursor cursor = db.rawQuery("select a.[areaId],b.[weather_id],a.[provinceName],a.[cityName]  From citys a,weathers b where " +
+                " a.[provinceName] = b.[province_name] and a.[areaName] = b.[area_name] and a.[cityName] =  '" + cityName + "' and a.[areaName] = '" + areaName + "'", null);
+        City city = new City();
+        if (cursor.moveToNext()) {
+            city.setAreaName(cursor.getString(cursor.getColumnIndex("cityName")));
+            city.setProvinceName(cursor.getString(cursor.getColumnIndex("provinceName")));
+            city.setCityName(cursor.getString(cursor.getColumnIndex("cityName")));
+            city.setWeatherId(cursor.getString(cursor.getColumnIndex("weather_id")));
+            city.setAreaId(cursor.getString(cursor.getColumnIndex("areaId")));
+            cursor.close();
+        } else {
+            cursor.close();
+            return null;
+        }
+
+        return city;
+    }
+
+    public City getCityByWeatherID(String weather_id) {
+        SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
+        Cursor cursor = db.rawQuery("select a.[areaId],b.[weather_id],a.[provinceName],a.[cityName]  From citys a,weathers b where " +
+                " a.[provinceName] = b.[province_name] and a.[areaName] = b.[area_name] and b.[weather_id] =  '" + weather_id + "'", null);
+        City city = new City();
+        if (cursor.moveToNext()) {
+            city.setAreaName(cursor.getString(cursor.getColumnIndex("cityName")));
+            city.setProvinceName(cursor.getString(cursor.getColumnIndex("provinceName")));
+            city.setCityName(cursor.getString(cursor.getColumnIndex("cityName")));
+            city.setWeatherId(cursor.getString(cursor.getColumnIndex("weather_id")));
+            city.setAreaId(cursor.getString(cursor.getColumnIndex("areaId")));
+            cursor.close();
+        } else {
+            cursor.close();
+            return null;
+        }
+
+        return city;
     }
 
 }

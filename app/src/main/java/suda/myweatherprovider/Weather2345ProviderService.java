@@ -1,6 +1,7 @@
 package suda.myweatherprovider;
 
 import android.os.AsyncTask;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
@@ -48,6 +49,11 @@ public class Weather2345ProviderService extends WeatherProviderService {
             "http://weatherapi.market.xiaomi.com/wtr-v2/weather?cityId=%s&language=zh_CN&imei=e32c8a29d0e8633283737f5d9f381d47&device=HM2013023&miuiVersion=JHBCNBD16.0&mod";
     private static final String URL_WEATHER_2345 =
             "http://tianqi.2345.com/t/new_mobile_json/%s.json";
+
+    private String MEIZU_LOCATION = "http://tools.meizu.com/service/weather_weatherdataact/searchCityNameAndCode.jsonp?p0=%s";
+
+    // private static final String GEO_URL = "http://maps.google.com/maps/api/geocode/json?latlng=%s,%s&language=zh-CN&sensor=false";
+    private static final String GEO_URL = "http://api.map.baidu.com/geocoder/v2/?ak=zYXfHVG6r6xTqlxgHrnK650y&callback=renderReverse&location=%s,%s&output=json&pois=1";
 
 
     @Override
@@ -177,21 +183,50 @@ public class Weather2345ProviderService extends WeatherProviderService {
         @Override
         protected WeatherInfo doInBackground(Void... params) {
             //TODO Read units from settings
+            String weatherID = "";
+            String areaID = "";
             try {
                 String cityIds = null;
                 if (mRequest.getRequestInfo().getRequestType()
                         == RequestInfo.TYPE_WEATHER_BY_WEATHER_LOCATION_REQ) {
                     cityIds = mRequest.getRequestInfo().getWeatherLocation().getCityId();
+                    weatherID = cityIds.split(",")[0];
+                    areaID = cityIds.split(",")[1];
+                } else if (mRequest.getRequestInfo().getRequestType() ==
+                        RequestInfo.TYPE_WEATHER_BY_GEO_LOCATION_REQ) {
+                    double lat = mRequest.getRequestInfo().getLocation().getLatitude();
+                    double lng = mRequest.getRequestInfo().getLocation().getLongitude();
+
+                    String cityNameResponse = HttpRetriever.retrieve(String.format(GEO_URL, lat, lng));
+                    if (TextUtils.isEmpty(cityNameResponse)) {
+                        return null;
+                    }
+                    cityNameResponse = cityNameResponse.replace("renderReverse&&renderReverse(", "").replace(")", "");
+                    Log.d(TAG, "cityNameResponse" + cityNameResponse);
+                    JSONObject jsonObjectCity = JSON.parseObject(cityNameResponse);
+                    String areaName = jsonObjectCity.getJSONObject("result").getJSONObject("addressComponent").getString("district");
+                    String cityName = jsonObjectCity.getJSONObject("result").getJSONObject("addressComponent").getString("city");
+                    if (areaName.length() > 2 && areaName.contains("县")) {
+                        areaName = areaName.replace("县", "");
+                    }
+                    if (cityName.contains("市")) {
+                        cityName = cityName.replace("市", "");
+                    }
+                    City city = cityDao.getCityByCityAndArea(cityName, areaName);
+                    if (city == null) {
+                        city = cityDao.getCityByCityAndArea(cityName, cityName);
+                        if (city == null)
+                            return null;
+                    }
+                    weatherID = city.getWeatherId();
+                    areaID = city.getAreaId();
                 } else {
                     return null;
                 }
 
-                String weatherID = cityIds.split(",")[0];
-                String areaID = cityIds.split(",")[1];
-
                 //miui天气
                 String miuiURL = String.format(URL_WEATHER_MIUI, weatherID);
-                if (DEBUG) Log.d(TAG, "miuiURL" + miuiURL);
+                if (DEBUG) Log.d(TAG, "miuiURL " + miuiURL);
                 String miuiResponse = HttpRetriever.retrieve(miuiURL);
                 if (miuiResponse == null) return null;
                 if (DEBUG) Log.d(TAG, "Rmiuiesponse " + miuiResponse);

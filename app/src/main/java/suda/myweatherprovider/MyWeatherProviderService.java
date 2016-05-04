@@ -58,6 +58,7 @@ public class MyWeatherProviderService extends WeatherProviderService {
             "http://aider.meizu.com/app/city/searchByKeyword?p0=%s";
 
     private static final String URL_HE_WEATHER = "https://api.heweather.com/x3/weather?cityid=CN%s&key=13d63a6fe83c44c897d62002f4c98551";
+    private static final String GEO_URL = "http://api.map.baidu.com/geocoder/v2/?ak=zYXfHVG6r6xTqlxgHrnK650y&callback=renderReverse&location=%s,%s&output=json&pois=1";
 
     private static final String URL_WEATHER =
             "http://weatherapi.market.xiaomi.com/wtr-v2/weather?cityId=%s&language=zh_CN&imei=e32c8a29d0e8633283737f5d9f381d47&device=HM2013023&miuiVersion=JHBCNBD16.0&mod";
@@ -206,9 +207,33 @@ public class MyWeatherProviderService extends WeatherProviderService {
                 if (mRequest.getRequestInfo().getRequestType()
                         == RequestInfo.TYPE_WEATHER_BY_WEATHER_LOCATION_REQ) {
                     cityId = mRequest.getRequestInfo().getWeatherLocation().getCityId();
-                } else if (mRequest.getRequestInfo().getRequestType()
-                        == RequestInfo.TYPE_WEATHER_BY_GEO_LOCATION_REQ) {
-                    return null;
+                } else if (mRequest.getRequestInfo().getRequestType() ==
+                        RequestInfo.TYPE_WEATHER_BY_GEO_LOCATION_REQ) {
+                    double lat = mRequest.getRequestInfo().getLocation().getLatitude();
+                    double lng = mRequest.getRequestInfo().getLocation().getLongitude();
+
+                    String cityNameResponse = HttpRetriever.retrieve(String.format(GEO_URL, lat, lng));
+                    if (TextUtils.isEmpty(cityNameResponse)) {
+                        return null;
+                    }
+                    cityNameResponse = cityNameResponse.replace("renderReverse&&renderReverse(", "").replace(")", "");
+                    Log.d(TAG, "cityNameResponse" + cityNameResponse);
+                    JSONObject jsonObjectCity = JSON.parseObject(cityNameResponse);
+                    String areaName = jsonObjectCity.getJSONObject("result").getJSONObject("addressComponent").getString("district");
+                    String cityName = jsonObjectCity.getJSONObject("result").getJSONObject("addressComponent").getString("city");
+                    if (areaName.length() > 2 && areaName.contains("县")) {
+                        areaName = areaName.replace("县", "");
+                    }
+                    if (cityName.contains("市")) {
+                        cityName = cityName.replace("市", "");
+                    }
+                    City city = cityDao.getCityByCityAndArea(cityName, areaName);
+                    if (city == null) {
+                        city = cityDao.getCityByCityAndArea(cityName, cityName);
+                        if (city == null)
+                            return null;
+                    }
+                    cityId = city.getWeatherId();
                 } else {
                     return null;
                 }
