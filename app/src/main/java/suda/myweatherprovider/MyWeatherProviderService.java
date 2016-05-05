@@ -176,9 +176,9 @@ public class MyWeatherProviderService extends WeatherProviderService {
             try {
                 List<City> citys = cityDao.getCitysByAreaName(input);
                 for (City city : citys) {
-                    WeatherLocation weatherLocation = new WeatherLocation.Builder(city.getWeatherId(), input)
+                    WeatherLocation weatherLocation = new WeatherLocation.Builder(city.getWeatherId(),  city.getAreaName())
                             .setCountry("中国").setState(city.getCityName() + "/" + city.getProvinceName())
-                            .setCountryId("CN")
+                            .setCountryId("0086")
                             .build();
                     results.add(weatherLocation);
                 }

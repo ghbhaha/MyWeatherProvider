@@ -157,9 +157,9 @@ public class Weather2345ProviderService extends WeatherProviderService {
             try {
                 List<City> citys = cityDao.getCitysByAreaName(input);
                 for (City city : citys) {
-                    WeatherLocation weatherLocation = new WeatherLocation.Builder(city.getWeatherId() + "," + city.getAreaId(), input)
+                    WeatherLocation weatherLocation = new WeatherLocation.Builder(city.getWeatherId() + "," + city.getAreaId(), city.getAreaName())
                             .setCountry("中国").setState(city.getCityName() + "/" + city.getProvinceName())
-                            .setCountryId("CN")
+                            .setCountryId("0086")
                             .build();
                     results.add(weatherLocation);
                 }
@@ -235,7 +235,7 @@ public class Weather2345ProviderService extends WeatherProviderService {
                 String ttffUrl = String.format(URL_WEATHER_2345, areaID);
                 if (DEBUG) Log.d(TAG, "ttffUrl " + ttffUrl);
                 String ttffResponse = DecodeUtil.decodeResponse(HttpRetriever.retrieve(ttffUrl));
-                if (ttffUrl == null) return null;
+                if (ttffResponse == null) return null;
                 if (DEBUG) Log.d(TAG, "ttffResponse " + ttffResponse);
 
 

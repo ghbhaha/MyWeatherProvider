@@ -24,19 +24,34 @@ public class CityDao {
 
     public List<City> getCitysByAreaName(String areaName) {
         SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
-        Cursor cursor = db.rawQuery("select a.[areaId],b.[weather_id],a.[provinceName],a.[cityName]  From citys a,weathers b where " +
-                " a.[provinceName] = b.[province_name]  and a.[areaName] = b.[area_name] and b.[area_name] =  '" + areaName + "'", null);
+        Cursor cursorCity = db.rawQuery("select a.[areaName],a.[areaId],b.[weather_id],a.[provinceName],a.[cityName]  From citys a,weathers b where " +
+                " a.[provinceName] = b.[province_name]  and a.[areaName] = b.[area_name] and a.[cityName] =  '" + areaName + "'", null);
         List<City> cities = new ArrayList<>();
-        while (cursor.moveToNext()) {
-            City city = new City();
-            city.setAreaName(areaName);
-            city.setProvinceName(cursor.getString(cursor.getColumnIndex("provinceName")));
-            city.setCityName(cursor.getString(cursor.getColumnIndex("cityName")));
-            city.setWeatherId(cursor.getString(cursor.getColumnIndex("weather_id")));
-            city.setAreaId(cursor.getString(cursor.getColumnIndex("areaId")));
-            cities.add(city);
+        if (cursorCity.getCount() > 0) {
+            while (cursorCity.moveToNext()) {
+                City city = new City();
+                city.setAreaName(cursorCity.getString(cursorCity.getColumnIndex("areaName")));
+                city.setProvinceName(cursorCity.getString(cursorCity.getColumnIndex("provinceName")));
+                city.setCityName(cursorCity.getString(cursorCity.getColumnIndex("cityName")));
+                city.setWeatherId(cursorCity.getString(cursorCity.getColumnIndex("weather_id")));
+                city.setAreaId(cursorCity.getString(cursorCity.getColumnIndex("areaId")));
+                cities.add(city);
+            }
+            cursorCity.close();
+        } else {
+            Cursor cursorArea = db.rawQuery("select a.[areaId],b.[weather_id],a.[provinceName],a.[cityName]  From citys a,weathers b where " +
+                    " a.[provinceName] = b.[province_name]  and a.[areaName] = b.[area_name] and b.[area_name] =  '" + areaName + "'", null);
+            while (cursorArea.moveToNext()) {
+                City city = new City();
+                city.setAreaName(areaName);
+                city.setProvinceName(cursorArea.getString(cursorArea.getColumnIndex("provinceName")));
+                city.setCityName(cursorArea.getString(cursorArea.getColumnIndex("cityName")));
+                city.setWeatherId(cursorArea.getString(cursorArea.getColumnIndex("weather_id")));
+                city.setAreaId(cursorArea.getString(cursorArea.getColumnIndex("areaId")));
+                cities.add(city);
+            }
+            cursorArea.close();
         }
-        cursor.close();
         return cities;
     }
 
