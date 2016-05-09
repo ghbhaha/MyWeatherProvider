@@ -10,14 +10,15 @@ import com.alibaba.fastjson.JSONObject;
 
 import org.json.JSONException;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import cyanogenmod.providers.WeatherContract;
-import cyanogenmod.weather.CMWeatherManager;
 import cyanogenmod.weather.RequestInfo;
 import cyanogenmod.weather.WeatherInfo;
 import cyanogenmod.weather.WeatherLocation;
@@ -176,7 +177,7 @@ public class MyWeatherProviderService extends WeatherProviderService {
             try {
                 List<City> citys = cityDao.getCitysByAreaName(input);
                 for (City city : citys) {
-                    WeatherLocation weatherLocation = new WeatherLocation.Builder(city.getWeatherId(),  city.getAreaName())
+                    WeatherLocation weatherLocation = new WeatherLocation.Builder(city.getWeatherId(), city.getAreaName())
                             .setCountry("中国").setState(city.getCityName() + "/" + city.getProvinceName())
                             .setCountryId("0086")
                             .build();
@@ -271,7 +272,7 @@ public class MyWeatherProviderService extends WeatherProviderService {
                     }
                 } else if (forecastProvide == SettingsActivity.WNL_FORECAST) {
                     String forecastUrl = String.format(URL_FORECAST_WNL,
-                            mRequest.getRequestInfo().getWeatherLocation().getCityId());
+                            cityId);
                     if (DEBUG) Log.d(TAG, "Forecast URL " + forecastUrl);
                     String forecastResponse = HttpRetriever.retrieve(forecastUrl);
                     if (forecastUrl == null) return null;
@@ -359,7 +360,11 @@ public class MyWeatherProviderService extends WeatherProviderService {
          */
         private ArrayList<WeatherInfo.DayForecast> parseForecastsMiui(JSONObject forecast, boolean metric) {
             ArrayList<WeatherInfo.DayForecast> result = new ArrayList<>();
-            result.add(createDayForecast(forecast.getString("temp1"), forecast.getString("img_title1"), metric));
+            String date_y = forecast.getString("date_y");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日");
+            if (date_y.equals(simpleDateFormat.format(new Date(System.currentTimeMillis())))) {
+                result.add(createDayForecast(forecast.getString("temp1"), forecast.getString("img_title1"), metric));
+            }
             result.add(createDayForecast(forecast.getString("temp2"), forecast.getString("img_title3"), metric));
             result.add(createDayForecast(forecast.getString("temp3"), forecast.getString("img_title5"), metric));
             result.add(createDayForecast(forecast.getString("temp4"), forecast.getString("img_title7"), metric));
@@ -390,7 +395,13 @@ public class MyWeatherProviderService extends WeatherProviderService {
             if (count == 0) {
                 throw new JSONException("Empty forecasts array");
             }
-            for (int i = 0; i < count - 1; i++) {
+
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            int base = 0;
+            if (!simpleDateFormat.format(new Date(System.currentTimeMillis())).equals(forecasts.getJSONObject(0).getString("date")))
+                base = 1;
+
+            for (int i = base; i < count - 1; i++) {
                 JSONObject forecast = forecasts.getJSONObject(i);
                 String tmpMin = forecast.getString("temp_night_c");
                 String tmpMax = forecast.getString("temp_day_c");
@@ -417,7 +428,13 @@ public class MyWeatherProviderService extends WeatherProviderService {
             if (count == 0) {
                 throw new JSONException("Empty forecasts array");
             }
-            for (int i = 0; i < count; i++) {
+
+            int base = 0;
+            Calendar calendar = Calendar.getInstance();
+            if (calendar.get(Calendar.DATE) != Integer.parseInt(forecasts.getJSONObject(0).getString("date").split("日")[0]))
+                base = 1;
+
+            for (int i = base; i < count; i++) {
                 JSONObject forecast = forecasts.getJSONObject(i);
                 String tmpMin = forecast.getString("low").split(" ")[1].replace("℃", "");
                 String tmpMax = forecast.getString("high").split(" ")[1].replace("℃", "");
