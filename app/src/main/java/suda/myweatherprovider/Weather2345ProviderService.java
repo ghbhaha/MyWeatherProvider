@@ -28,6 +28,7 @@ import suda.myweatherprovider.util.DateTimeUtil;
 import suda.myweatherprovider.util.DecodeUtil;
 import suda.myweatherprovider.util.HttpRetriever;
 import suda.myweatherprovider.util.IconUtil;
+import suda.myweatherprovider.util.TextUtil;
 
 /**
  * Created by ghbha on 2016/4/27.
@@ -155,7 +156,7 @@ public class Weather2345ProviderService extends WeatherProviderService {
         private ArrayList<WeatherLocation> getLocations(String input) {
             ArrayList<WeatherLocation> results = new ArrayList<>();
             try {
-                List<City> citys = cityDao.getCitysByAreaName(input);
+                List<City> citys = cityDao.getCitysByAreaName(TextUtil.getFormatArea(input));
                 for (City city : citys) {
                     WeatherLocation weatherLocation = new WeatherLocation.Builder(city.getWeatherId() + "," + city.getAreaId(), city.getAreaName())
                             .setCountry("中国").setState(city.getCityName() + "/" + city.getProvinceName())
@@ -206,12 +207,8 @@ public class Weather2345ProviderService extends WeatherProviderService {
                     JSONObject jsonObjectCity = JSON.parseObject(cityNameResponse);
                     String areaName = jsonObjectCity.getJSONObject("result").getJSONObject("addressComponent").getString("district");
                     String cityName = jsonObjectCity.getJSONObject("result").getJSONObject("addressComponent").getString("city");
-                    if (areaName.length() > 2 && areaName.contains("县")) {
-                        areaName = areaName.replace("县", "");
-                    }
-                    if (cityName.contains("市")) {
-                        cityName = cityName.replace("市", "");
-                    }
+                    areaName = TextUtil.getFormatArea(areaName);
+                    cityName = TextUtil.getFormatArea(cityName);
                     City city = cityDao.getCityByCityAndArea(cityName, areaName);
                     if (city == null) {
                         city = cityDao.getCityByCityAndArea(cityName, cityName);
