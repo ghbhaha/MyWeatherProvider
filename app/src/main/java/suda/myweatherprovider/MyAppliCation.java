@@ -12,13 +12,9 @@ public class MyAppliCation extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        if (SPUtils.get(this, "new", 0) == 1)
-            return;
-        else {
+        if ((int)SPUtils.get(this, "new", 0) != 1)
             SPUtils.put(this, "new", 1);
             AssetsCopyUtil.copyEmbassy2Databases(this, "data/data/" + this.getPackageName() + "/databases/",
-                    "location.db");
-        }
-
+                "location.db");
     }
 }

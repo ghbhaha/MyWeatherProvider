@@ -5,7 +5,7 @@ import android.text.TextUtils;
 import java.util.Calendar;
 import java.util.HashMap;
 
-import cyanogenmod.providers.WeatherContract;
+import lineageos.providers.WeatherContract;
 
 /**
  * Created by ghbha on 2016/5/2.

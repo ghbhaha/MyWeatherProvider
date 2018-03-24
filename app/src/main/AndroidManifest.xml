@@ -2,9 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="suda.myweatherprovider">
 
-    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
-    <uses-permission android:name="cyanogenmod.permission.ACCESS_WEATHER_MANAGER" />
-    <uses-feature android:name="org.cyanogenmod.weather" android:required="true" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="lineageos.permission.ACCESS_WEATHER_MANAGER" />
+    <uses-feature android:name="org.lineageos.weather" android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -23,13 +23,13 @@
             android:name=".MyWeatherProviderService"
             android:exported="true"
             android:label="@string/app_name"
-            android:permission="cyanogenmod.permission.BIND_WEATHER_PROVIDER_SERVICE">
+            android:permission="lineageos.permission.BIND_WEATHER_PROVIDER_SERVICE">
             <intent-filter>
-                <action android:name="cyanogenmod.weatherservice.WeatherProviderService" />
+                <action android:name="lineageos.weatherservice.WeatherProviderService" />
             </intent-filter>
 
             <meta-data
-                android:name="cyanogenmod.weatherservice"
+                android:name="lineageos.weatherservice"
                 android:resource="@xml/myweather" />
         </service>
 
@@ -37,13 +37,13 @@
             android:name=".Weather2345ProviderService"
             android:exported="true"
             android:label="@string/app_name2"
-            android:permission="cyanogenmod.permission.BIND_WEATHER_PROVIDER_SERVICE">
+            android:permission="lineageos.permission.BIND_WEATHER_PROVIDER_SERVICE">
             <intent-filter>
-                <action android:name="cyanogenmod.weatherservice.WeatherProviderService" />
+                <action android:name="lineageos.weatherservice.WeatherProviderService" />
             </intent-filter>
 
             <meta-data
-                android:name="cyanogenmod.weatherservice"
+                android:name="lineageos.weatherservice"
                 android:resource="@xml/another_weather" />
         </service>
 
